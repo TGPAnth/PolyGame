@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pygame, sys, math
+import pygame, sys, math, copy
 from pygame.locals import *
 from poly import *
 pygame.init()
@@ -11,7 +11,6 @@ MOVE = 1
 
 
 class Map():
-
 	def __init__(self,wd,hg):
 		self.polygons_array = []
 		self.height = 10
@@ -26,6 +25,27 @@ class Map():
 		self.poly_wd = 4
 		self.bkgnd_color = (255,255,255)
 		self.Mode = CHOOSE
+		self.ActivePolygonNum = None
+		self.ActivePolygon = None
+		self.NewActivePolygon = None
+		self.FreezedPoint = None
+		self.ActivePoint = None
+		self.StartAngle = None
+		self.AngleNow = None
+		self.ActivePointNum = None
+		self.delta_prev = None
+
+	def get_AS(self):
+		print 'DFGHJ ',self.Mode
+		return self.Mode
+
+	def log(self):
+		global LOG
+		LOG = 1
+
+	def not_log(self):
+		global LOG
+		LOG = 0
 
 	def redraw(self):
 		self.Surface = pygame.Surface((self.wd,self.hg))
@@ -39,13 +59,14 @@ class Map():
 		return (mxy[0] - xy[0])**2 + (mxy[1] - xy[1])**2 <= r**2
 
 	def mouse_near_corner(self,mxy,r=3):
-		for p in self.polygons_array:
-			# if not(p.move):
-			# 	continue
+		for p in self.polygons_array[:]:
+			if not(p.can_move()):
+				continue
 			for point in p[:]:
 				if self.in_radius([point[0]*self.Scale,point[1]*self.Scale],mxy,r):
-					return p,point[:]
-		return None,None
+					self.ActivePolygon, self.ActivePoint = copy.deepcopy(p),point[:]
+					return None
+		self.ActivePolygon, self.ActivePoint 
 
 	def gradus2rad(self,a):
 		return a*pi/180
@@ -58,26 +79,46 @@ class Map():
 		num += 2
 		if num >= len(polyg[:]):
 			num -= len(polyg[:])
-		return polyg[num]
+		self.FreezedPoint = polyg[num][:]
+		return self.FreezedPoint
 
 	def sign(self,a):
 		if a<0:
 			return -1
 		return 1
 
-	def get_start_angle(self,polyg,act_pnt,freeze_pnt = None):
-		if freeze_pnt == None:
-			freeze_pnt = self.get_oppose_corner(polyg,act_pnt)
-		params = polyg.get_parameters(act_pnt,freeze_pnt)
-		if abs(params[1])<=0.001:
-			return 90.0
-		angle = math.atan(-1*params[0]/float(params[1]))
-		if LOG: print act_pnt,' ',polyg.rad2gradus(angle),' ',angle,' ',params[0]/float(params[1])
-		angle = self.rad2gradus(angle)
+	def get_start_angle(self,APolyg = None,APoint = None,FPoint = None):
+		if APolyg == None:
+			APolyg = self.ActivePolygon
+		if APoint == None:
+			APoint = self.ActivePoint
+		if FPoint == None:
+			FPoint = self.get_oppose_corner(APolyg,APoint)
+		self.StartAngle = self.get_angle(APolyg,APoint,FPoint)
+
+	def get_now_angle(self,APolyg = None,APoint = None,FPoint = None):
+		if APolyg == None:
+			APolyg = self.ActivePolygon
+		if APoint == None:
+			APoint = self.ActivePoint
+		if FPoint == None:
+			FPoint = self.get_oppose_corner(APolyg,APoint)
+		self.AngleNow = self.get_angle(APolyg,APoint,FPoint)
+
+	def get_angle(self,polyg,act_pnt,freeze_pnt,dlta = 0.001):
+		# print '!!!!',polyg,act_pnt,freeze_pnt
 		params = polyg.get_parameters(act_pnt,freeze_pnt)
 		pA = params[0]
 		pB = params[1]
-		if ((pA>0)and(pB<=0))or((pA<0)and(pB<0)):
+		if abs(pB)<=dlta:
+			return self.sign(pA)*90.0
+		if abs(pA)<=dlta:
+			return self.sign(pB)*90.0 - 90
+		angle = math.atan(-1*params[0]/float(params[1]))
+		if LOG: print act_pnt,' ',polyg.rad2gradus(angle),' ',angle,' ',params[0]/float(params[1])
+		angle = self.rad2gradus(angle)
+		# params = polyg.get_parameters(act_pnt,freeze_pnt)
+		if ((pA>0)and(pB<0))or((pA<0)and(pB<0)):
 			angle = self.sign(angle)*(180-abs(angle))
 		else:
 			angle *= -1
@@ -96,6 +137,85 @@ class Map():
 
 	def add(self,polyg):
 		self.polygons_array.append(polyg)
+
+	def get_index(self,polyg):
+		j = 0
+		for x in xrange(len(polyg[:])):
+			if polyg[x]==self.ActivePoint:
+				self.ActivePointNum = x
+		for i in self.polygons_array[:]:
+			if i.__dict__ == polyg.__dict__:
+				self.ActivePolygonNum = j
+				return None
+			j += 1
+		self.ActivePolygonNum = None
+
+	def sign(self,a):
+		if a<0:
+			return -1
+		return 1
+
+	def get_norm_delta(self,start,finish):
+		# start, finish - gradus
+		## delta < 0:поворот вправо; >0:поворот влево
+		if start*finish>0:
+			d = start - finish
+		else:
+			new_angle_1 = math.asin(math.sin(start*pi/180))*180/pi
+			new_angle_2 = math.asin(math.sin(finish*pi/180))*180/pi
+			d = new_angle_1 - new_angle_2
+			if LOG: print 'new_angle_1 ',new_angle_1
+			if LOG: print 'new_angle_2 ',new_angle_2
+			# d = abs(new_angle_1)+abs(new_angle_2)
+			# if (not(abs(start)>90) and (finish>0)) or ((abs(start)>90) and not (finish>0)):
+			# 	d *= -1
+			if abs(start)>90 and abs(finish)>90:
+				d*= -1
+			if LOG: print 'Indelta ',d
+		return -d
+
+	def not_intersecs(self,delta):
+		print '\n\n START CHECK \n'
+		f = lambda a=self.FreezedPoint,b=self.ActivePoint:math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+		for i in self.polygons_array[:]:
+			if i[:] == self.NewActivePolygon[:]:
+				continue
+			# print i
+			if i.cross(self.NewActivePolygon,self.ActivePoint):
+				if LOG: print ' !!!!!!!!!!!! FAIL !!!!!!!!!!!!'
+				return False
+		return True
+
+	def move_polygons(self,msxy,MAD):
+		# вычисление текущего угла
+		descaledmxy = [msxy[0]/float(self.Scale),msxy[1]/float(self.Scale)]
+		self.get_now_angle(self.ActivePolygon,descaledmxy,self.FreezedPoint)
+		del descaledmxy
+		delta = 1*self.get_norm_delta(self.StartAngle,self.AngleNow)
+		# print self.AngleNow,'                  ',delta
+		# возможность двинуть полигон
+		if self.not_intersecs(delta):
+		# 	pass
+		# if 1:
+			# поворот влево - <0
+			tmp_AP = copy.deepcopy(self.ActivePolygon)
+			self.NewActivePolygon = copy.deepcopy(tmp_AP.rotate(delta,self.FreezedPoint[:]))
+			del tmp_AP
+			# проверка на 90-градусный поворот
+			if (abs(delta)>90-MAD):
+				# перезапись полигона StartPolyg
+				self.ActivePolygon.rotate((abs(delta)/delta)*90,self.FreezedPoint,new = False)
+				self.ActivePoint = self.ActivePolygon[self.ActivePointNum][:]
+				self.get_start_angle()
+				if self.StartAngle >= 180:
+					self.StartAngle -= 360
+				if self.StartAngle < -180:
+					self.StartAngle += 360
+			del delta
+			# перезапись self полигона
+			self.polygons_array[self.ActivePolygonNum] = copy.deepcopy(self.NewActivePolygon)
+			# перерисовка полигона
+			return True
 
 	def parse_cursor(self,string, hotspot=(0, 0), and_xor=True, outline="1", fill="0",bg=" "):
 		"""A light-weight cursor parser.

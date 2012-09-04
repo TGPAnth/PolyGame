@@ -1,18 +1,10 @@
-import math
-from math import pi
+# -*- coding: utf-8 -*-
 
-def gradus2rad(a):
-  return a*pi/180
+from math import *
 
-def rad2gradus(a):
-  return a*180/pi
-
-a = -50
-b = -130
-
-c = math.asin(math.sin(gradus2rad(a)))
-d = math.asin(math.sin(gradus2rad(a)))
-print rad2gradus(c)
-print rad2gradus(d)
-
-print 
+a = [5,5]
+b = [2,2]
+c = sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+d = 3*sqrt(2)
+print c
+print d

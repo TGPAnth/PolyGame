@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import copy
 from math import sin,cos,tan,pi
 
 LOG = 0
 MOVE = (255,0,0)
 WALL = (0,0,0)
 FINISH = (0,255,0)
+
+# LOG = 0
 
 class Polygon():
 	
@@ -15,7 +18,7 @@ class Polygon():
 			self.pts = lst[:]
 			# for i in xrange(len(self.pts)):
 			# 	self.pts[i] = [int(self.pts[i][0]),int(self.pts[i][1])]
-		self.move = 1
+		self.move = 0
 		self.color = WALL
 
 	def parallel_axes(self,lst):
@@ -24,6 +27,14 @@ class Polygon():
 			if not((lst[i][0]==lst[i+1][0]) or (lst[i][1]==lst[i+1][1])):
 				return False
 		return True
+
+	def can_move(self,i=None):
+		if i == None:
+			return self.move
+		if i:
+			self.move = 1
+		else:
+			self.move = 0
 
 	def is_poly(self,a):
 		if not (isinstance(a,list)):
@@ -43,12 +54,13 @@ class Polygon():
 	def rad2gradus(self,a):
 		return a*180/pi
 
-	def rotate_point(self,xy,a=None,only_x = 0,only_y = 0):
+	def rotate_point(self,xy1,a=None,only_x = 0,only_y = 0):
 		"""
 		a - radian! NOT tan(alpha)
 		"""
+		xy = xy1[:]
 		if a == None:
-			return xy
+			return xy[:]
 		x = xy[0]
 		y = xy[1]
 		cosa = round(cos(a),4)
@@ -59,17 +71,16 @@ class Polygon():
 		if only_y : return new_y
 		return [new_x,new_y]
 
-	def intersec_with_arc(self,x0,y0,r,angle_start,angle_finish,every = 2):
+	def intersec_with_arc(self,xy,r,angle_start,angle_finish,delta_angle,every = 2):
 		
 		def get_xy(x,y,rq,angle):
 			uy = round(y + cos(angle)*rq,3)
 			ux = round(x + sin(angle)*rq,3)
 			return [uy,ux]
-
-		delta_angle = abs(angle_start - angle_finish)
+		x0,y0 = xy[0],xy[1]
 		min_angle = min([angle_start,angle_finish])
 		max_angle = max([angle_start,angle_finish])
-		angles = [x+min_angle for x in xrange(delta_angle+1) if x%every]
+		angles = [x+min_angle for x in xrange(int(delta_angle)+1) if x%every]
 		coords = [get_xy(x0,y0,r,self.gradus2rad(i)) for i in angles]
 		if LOG:
 			print '>>>>>>  intersec_with_arc  >>>>>> '
@@ -86,7 +97,7 @@ class Polygon():
 				return True
 		return False
 
-	def rotate(self,angle=None,nullpoint = None):
+	def rotate(self,angle=None,nullpoint = None,new = True):
 		# angle - gradus
 		def sgn(a):
 			if a<0:
@@ -113,10 +124,12 @@ class Polygon():
 			return a[:],f
 		
 		def from_zero(a=None,f=None):
+			b = a[:]
+			h = f[:]
 			for i in xrange(len(a)):
-				a[i][0] +=f[0]
-				a[i][1] +=f[1]
-			return a[:]
+				b[i][0] += h[0]
+				b[i][1] += h[1]
+			return b[:]
 
 		if angle < 0: angle+=360
 		a1 = self.pts[:]
@@ -128,12 +141,15 @@ class Polygon():
 		if LOG: print 'NewG = ',g,' NP=',nullpoint
 		j = from_zero(g[:],h[:])
 		if LOG: print 'ForNP ',j,' NP=',nullpoint
-		pgn = Polygon(j[:])
-		pgn.move = self.move
-		pgn.color = self.color
-		if LOG: print 'PGN ',pgn,' NP=',nullpoint
-		del a1,g,h,j,nullpoint
-		return pgn
+		if new:
+			pgn = copy.deepcopy(Polygon(j[:]))
+			pgn.move = self.move
+			pgn.color = self.color
+			if LOG: print 'PGN ',pgn,' NP=',nullpoint
+			return copy.deepcopy(pgn)
+		else:
+			self.pts = j[:]
+		
 
 	def rewrite_pts(self,a):
 		if not (self.is_poly(a)):
@@ -183,30 +199,49 @@ class Polygon():
 	def get_parameters(self,XY1,XY2):
 		return [self.find_A(XY1,XY2),self.find_B(XY1,XY2),self.find_C(XY1,XY2)]
 
-	def cross(self,a):
-		a1 = self.pts[:]
-		a2 = a[:]
-		if a1[0]!=a1[-1]:a1.append(a1[0])
-		if a2[0]!=a2[-1]:a2.append(a2[0])
-		for i in xrange(len(a1)-1):
-			for j in xrange(len(a2)-1):
-				if self.cross_line(a1[i],a1[i+1],a2[j],a2[j+1]):
-					return True
-		return False
-
-	def cross_with_line(self,xy,xy1):
-		a1 = self.pts[:]
+	def cross(self,a,AP):
+		a1 = a[:]
 		if a1[0]!=a1[-1]:a1.append(a1[0])
 		for i in xrange(len(a1)-1):
-			if LOG:
-				print '>>>>> cross_with_line >>>>>'
-				print  a1[i],a1[i+1],xy,xy1
-				print '<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-			if self.cross_line(a1[i],a1[i+1],xy,xy1):
+			print ' Now point: ',i,'\n Now line: ',a1[i],a1[i+1]
+			if self.cross_with_line(a1[i],a1[i+1],AP):
+				print ' Crossed with line!'
+				if LOG: print ' !!!!!!!!!!!! FAIL !!!!!!!!!!!!'
 				return True
 		return False
 
-	def cross_line(self,A1,A2,B1,B2):
+	def near_point(self,XY,A1,d=0.1):
+		return ((XY[0]-A1[0])**2+(XY[1]-A1[1])**2)**(1.0/2) <= d
+
+	def near(self,a,b,c,d,dt=0.1):
+		if self.near_point(a,c,dt) or\
+			self.near_point(a,d,dt) or\
+			self.near_point(b,c,dt) or\
+			self.near_point(b,d,dt) :
+			return True
+		return False
+
+	def cross_with_line(self,xy,xy1,AP=None):
+		a1 = self.pts[:]
+		if a1[0]!=a1[-1]:a1.append(a1[0])
+		d = 0.1
+		f = True
+		for i in xrange(len(a1)-1):
+			nr = False
+			if LOG: print ' Try to check for cross line ',xy,xy1,' with ',a1[i],a1[i+1]
+			if not(xy == AP) or not(xy1 == AP):
+				if AP == None:
+					f = True
+				else:
+					f = not(self.near(a1[i],a1[i+1],xy,xy1,d))
+					nr = True
+			if self.cross_line(a1[i],a1[i+1],xy,xy1,nearp = nr) and f: 
+				if LOG: print ' !!!!!!!!!!!! FAIL !!!!!!!!!!!!'
+				return True
+		return False
+
+	def cross_line(self,A1,A2,B1,B2,d = 1.1,nearp = False):
+		if LOG: print ' In cross_line:'
 		if self.line_on_line_cross(A1,A2,B1,B2):
 			if LOG: print '!!! line_on_line_cross = ',A1,A2,B1,B2
 			return False #???
@@ -217,11 +252,18 @@ class Polygon():
 			if LOG: print '!!! parallel_lines = ',A1,A2,B1,B2
 			return False
 		a = self.cross_point(A1,A2,B1,B2)
+		print '>>>>>>>>> nearp: ',nearp 
+		print '>>>>>>>>> self.near(A1,A2,a,a,0.2):', self.near(A1,A2,a,a,0.1)
+		if nearp :
+			if self.near(A1,A2,a,a,0.1):
+				return False
+			else:
+				d = 1.001
 		if LOG: 
 			print '... cross_point = ',a
 			print '... between(A1,A2,a)',self.between(A1,A2,a),A1,A2,a
 			print '... between(B1,B2,a)',self.between(B1,B2,a),B1,B2,a
-		return self.between(A1,A2,a) and self.between(B1,B2,a)
+		return self.between(A1,A2,a,d) and self.between(B1,B2,a,d)
 
 	def cross_point(self,aXY1,aXY2,bXY1,bXY2):
 		"""
@@ -249,11 +291,11 @@ class Polygon():
 			return None
 		return [(B1*C2-B2*C1)/float(A1*B2-A2*B1),(C1*A2-C2*A1)/float(A1*B2-A2*B1)]
 
-	def between(self,A1,A2,XY):
-		return ((((XY[0]-A1[0])**2+(XY[1]-A1[1])**2)**(1.0/2)) + (((A2[0]-XY[0])**2+(A2[1]-XY[1])**2)**(1.0/2))) / float(((A2[0]-A1[0])**2+(A2[1]-A1[1])**2)**(1.0/2)) <= 1.1
+	def between(self,A1,A2,XY,d = 2):
+		return ((((XY[0]-A1[0])**2+(XY[1]-A1[1])**2)**(1.0/2)) + (((A2[0]-XY[0])**2+(A2[1]-XY[1])**2)**(1.0/2))) / float(((A2[0]-A1[0])**2+(A2[1]-A1[1])**2)**(1.0/2)) <= d
 
-	def on_line(self,A1,A2,XY):
-		return (0.01 >= (XY[1] - A1[1]) * (A2[0] - A1[0]) - (XY[0] - A1[0]) * (A2[1] - A1[1]))
+	def on_line(self,A1,A2,XY,d = 0.01):
+		return (d >= (XY[1] - A1[1]) * (A2[0] - A1[0]) - (XY[0] - A1[0]) * (A2[1] - A1[1]))
 
 	def line_on_line(self,A1,A2,B1,B2):
 		if self.on_line(A1,A2,B1) and self.on_line(A1,A2,B2):
