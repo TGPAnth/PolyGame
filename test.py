@@ -2,9 +2,7 @@
 
 from math import *
 
-a = [5,5]
-b = [2,2]
-c = sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
-d = 3*sqrt(2)
-print c
-print d
+menu_list_en = ['Start','Choose Level','Options','Exit']
+menu_list_ru = ['Поехали','Выбрать уровень','Опции','Выход']
+menu_list_all_lang = [menu_list_en,menu_list_ru]
+print menu_list_all_lang

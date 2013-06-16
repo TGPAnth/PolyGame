@@ -1,0 +1,447 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"close",
+				"close_tag_start"
+			],
+			[
+				"close_t",
+				"close_tag_finish"
+			],
+			[
+				"no",
+				"normally_bracket"
+			],
+			[
+				"open",
+				"open_tag_finish"
+			],
+			[
+				"s",
+				"source"
+			],
+			[
+				"s_t",
+				"s_title"
+			],
+			[
+				"par",
+				"parse_tag"
+			],
+			[
+				"hours_",
+				"hours_worked_small"
+			],
+			[
+				"ho",
+				"hours_worked_small"
+			],
+			[
+				"hou",
+				"hours_worked"
+			],
+			[
+				"Dodge",
+				"DodgeChargerSE"
+			],
+			[
+				"ma",
+				"max_helm"
+			],
+			[
+				"max",
+				"max_sterrangle"
+			],
+			[
+				"tra",
+				"transmission"
+			],
+			[
+				"Move",
+				"MOVE"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "main.py",
+			"settings":
+			{
+				"buffer_size": 4687,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "game.py",
+			"settings":
+			{
+				"buffer_size": 4548,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mmap.py",
+			"settings":
+			{
+				"buffer_size": 9566,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "poly.py",
+			"settings":
+			{
+				"buffer_size": 6755,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "test.py",
+			"settings":
+			{
+				"buffer_size": 236,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "window.py",
+			"settings":
+			{
+				"buffer_size": 604,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 139.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/media/UBUNTU/Files/Python/Projects/PolyGame/test.py",
+		"/media/UBUNTU/Files/Python/Projects/PolyGame/poly.py",
+		"/media/UBUNTU/Files/Python/Projects/PolyGame/mmap.py",
+		"/media/UBUNTU/Files/Python/Projects/PolyGame/main.py",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/main.py",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/bd.py",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/set_start.py",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/output.txt",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/t_hours_worked.csv",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/t_pay.csv",
+		"/media/Ubuntu 11.1/IOSU/Lab_1_IS/t_worker.csv",
+		"/home/anth/Projects/1.py",
+		"/media/UBUNTU/Python/Projects/untitled.py",
+		"/media/UBUNTU/Python/Projects/PolyGame/poly.py",
+		"/media/UBUNTU/Python/Projects/tiletest.py",
+		"/media/UBUNTU/Python/Projects/PolyGame/mmap.py",
+		"/usr/share/applications/sublime.desktop",
+		"/media/UBUNTU/Python/Projects/PolyGame/main.py",
+		"/usr/share/applications/defaults.list",
+		"/home/anth/Projects/PyCar/test.py",
+		"/home/anth/Projects/PyCar/physics.py",
+		"/home/anth/Projects/PyCar/main.py",
+		"/home/anth/Projects/Pygame/Test/test.py",
+		"/home/anth/Projects/Pygame/CubeSerf/graphic.py",
+		"/home/anth/Projects/Pygame/CubeSerf/main.py",
+		"/media/UBUNTU/My/Projects/Pygame/CubeSerf/engine.py",
+		"/home/anth/Ubuntu One/Projects/Pygame/CubeSerf/graphic.py",
+		"/home/anth/Ubuntu One/Projects/Pygame/CubeSerf/main.py",
+		"/media/UBUNTU/My/Projects/Pygame/CubeSerf/main.py",
+		"/home/anth/Ubuntu One/Projects/Pygame/CubeSerf/phis.py",
+		"/media/UBUNTU/My/Projects/Pygame/CubeSerf/imports.py",
+		"/home/anth/Projects/Pygame/CubeSerf/import sys, pygame.py",
+		"/home/anth/Projects/Pygame/CubeSerf/imports.py",
+		"/home/anth/Projects/Pygame/CubeSerf/engine.py"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"MainWindow",
+			"update",
+			"WD",
+			"gedit.desktop",
+			"поворота",
+			"Player"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"sublime.desktop"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "main.py",
+					"settings":
+					{
+						"buffer_size": 4687,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 153.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "game.py",
+					"settings":
+					{
+						"buffer_size": 4548,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2265,
+								2265
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 808.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "mmap.py",
+					"settings":
+					{
+						"buffer_size": 9566,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3543,
+								3543
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2083.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "poly.py",
+					"settings":
+					{
+						"buffer_size": 6755,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5634,
+								5634
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3825.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "test.py",
+					"settings":
+					{
+						"buffer_size": 236,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "window.py",
+					"settings":
+					{
+						"buffer_size": 604,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								103,
+								103
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 102.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 96.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 115.0,
+	"status_bar_visible": true
+}

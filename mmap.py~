@@ -17,7 +17,7 @@ class Map():
 		self.height = 10
 		self.width = 10
 		self.Draw_Coord = 1
-		self.Scale = 32 #""" TODO: """# Расчитывать ДИНАМИЧЕСКИ!!!
+		self.Scale = 30 #""" TODO: """# Расчитывать ДИНАМИЧЕСКИ!!!
 		self.wd = wd
 		self.hg = hg
 		self.Surface = pygame.Surface((wd,hg))

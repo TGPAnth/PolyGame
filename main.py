@@ -1,28 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import pygame, sys, copy,math
+import pygame, sys, copy,math,time
 from mmap import *
 from poly import *
 from pygame.locals import *
 pygame.init()
 
-CanLog = 0
-
-# sys.getsizeof
-
 MLOG = 0
 
-MAX_ANGLE_DELTA_K = 0.11111
 MAX_ANGLE_DELTA   = 10
 
 WD = 640
 HG = 480
-
-# while True:
-# 	get_active_poly
-# 	get_rotate_point
-# 	get_angle
-# 	get_results
 
 fpsClock = pygame.time.Clock()
 
@@ -39,33 +28,53 @@ mousex,mousey = 0,0
 
 GameMap = Map(WD,HG)
 
-FirstWallPoly = Polygon([[6,2],[10,2],[10,7],[6,7]])
-FirstWallPoly.can_move(True)
-GameMap.add(FirstWallPoly)
-GameMap.add(Polygon([[10,7],[16,7],[16,9],[10,9]]))
+GameMap.add(Polygon([[1,1],[18,1],[18,14],[1,14]]),WALL)
+GameMap.add(Polygon([[2,2],[5,2],[5,5],[2,5]]),WALL)
+GameMap.add(Polygon([[11,5],[11,2],[17,2],[17,5]]),WALL)
+GameMap.add(Polygon([[2,6],[3,6],[3,12],[2,12]]),WALL)
+GameMap.add(Polygon([[11,6],[15,6],[15,8],[11,8]]),WALL)
+GameMap.add(Polygon([[15,9],[17,9],[17,13],[15,13]]),WALL)
+GameMap.add(Polygon([[6,3],[10,3],[10,5],[6,5]]),MOVE)
+GameMap.add(Polygon([[10,11],[14,11],[14,13],[10,13]]),FINISH)
 
-GameMap.not_log()
+# FirstWallPoly = Polygon([[6,2],[10,2],[10,7],[6,7]])
+# FirstWallPoly.can_move(True)
+# GameMap.add(FirstWallPoly)
+# GameMap.add(Polygon([[10,7],[16,7],[16,9],[10,9]]))
+
+# GameMap.not_log()
 
 font = pygame.font.Font(None, 36)
 pnt = pgn = None
 mousexy = pygame.mouse.get_pos()
 
-def mouse_button_up():
-	global GameMap
-	if not(GameMap.ActivePolygonNum == None):
-		GameMap.polygons_array[GameMap.ActivePolygonNum] = copy.deepcopy(GameMap.ActivePolygon)
-	GameMap.Mode = CHOOSE
-	if not(GameMap.ActivePolygon==None) and not(GameMap.ActivePolygonNum==None): 
-		GameMap.polygons_array[GameMap.ActivePolygonNum] = copy.deepcopy(GameMap.ActivePolygon)
-	GameMap.ActivePolygon = None
-	GameMap.NewActivePolygon = None
-	GameMap.FreezedPoint = None
-	GameMap.ActivePoint = None
-	GameMap.ActivePolygonNum = None
-	GameMap.StartAngle = None
-	GameMap.AngleNow = None
-	GameMap.ActivePointNum = None
-	GameMap.delta_prev = None
+def mouse_button_up(mGameMap):
+	if not(mGameMap.ActivePolygonNum == None):
+		mGameMap.polygons_array[mGameMap.ActivePolygonNum] = copy.deepcopy(mGameMap.ActivePolygon)
+	mGameMap.Mode = CHOOSE
+	if not(mGameMap.ActivePolygon==None) and not(mGameMap.ActivePolygonNum==None): 
+		mGameMap.polygons_array[mGameMap.ActivePolygonNum] = copy.deepcopy(mGameMap.ActivePolygon)
+	mGameMap.ActivePolygon = None
+	mGameMap.NewActivePolygon = None
+	mGameMap.FreezedPoint = None
+	mGameMap.ActivePoint = None
+	mGameMap.ActivePolygonNum = None
+	mGameMap.StartAngle = None
+	mGameMap.AngleNow = None
+	mGameMap.ActivePointNum = None
+	mGameMap.delta_prev = None
+
+def have_a_winner():
+	f = lambda x:[[int(y[0]),int(y[1])] for y in x]
+	ready = 0
+	for i in GameMap.polygons_array[:]:
+		# for x in GameMap.finish_array[:]:
+		# 	print f(x)
+		if [x for x in GameMap.finish_array[:] if f(x[:])==f(i[:])]:
+			ready+=1
+	if ready == len(GameMap.finish_array):
+		return True
+	return False
 
 def print_mouse(mouse_pos):
 	strng = "mouse: " + str([mouse_pos[0]/float(GameMap.Scale),mouse_pos[1]/float(GameMap.Scale)])
@@ -79,28 +88,34 @@ def get_pos_angle(angle):
 		return angle+360
 	return angle
 
-def sign(a):
-	if a<0:
-		return -1
-	return 1
-
 while 1:
 	# draw background and coordinate grid
 	windowSurfaceObj.fill(whitecolor)
 	windowSurfaceObj.blit(GameMap.redraw(),(0,0))
 	
-	# print GameMap.get_AS()
-
 	# можем ли двигать текущий полигон
-	if GameMap.Mode == MOVE and not GameMap.move_polygons(mousexy,MAX_ANGLE_DELTA):
-		mouse_button_up()
+	if GameMap.Mode == MOVE :
+		if not(GameMap.move_polygons(mousexy,MAX_ANGLE_DELTA)):
+			mouse_button_up(GameMap)
+			# print 'UP'
+	else:
+		if have_a_winner():
+			mouse_button_up(GameMap)
+			windowSurfaceObj.fill(whitecolor)
+			windowSurfaceObj.blit(GameMap.redraw(),(0,0))
+			pygame.display.update()
+			# time.sleep(1)
+			strng = "You are WINNER!"
+			text = font.render(strng, 1, (10, 10, 10))
+			textpos = text.get_rect()
+			textpos.centerx = windowSurfaceObj.get_rect().centerx
+			windowSurfaceObj.blit(text, textpos)
+			raise Exception('You are win')
+
  
 	if MLOG: 
 		print_mouse(mousexy)	
 	
-	CanLog = 0
-	GameMap.not_log()
-	# get events
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			pygame.quit()
@@ -130,20 +145,18 @@ while 1:
 		elif event.type == MOUSEBUTTONUP:
 			mousexy = pygame.mouse.get_pos()
 			if event.button == 1:
-				mouse_button_up()
+				mouse_button_up(GameMap)
 
 		elif event.type == KEYDOWN:
 			if event.key == K_SPACE:
-				if CanLog:
-					GameMap.not_log()
-				else:
-					CanLog = 1
-					GameMap.log()
+				for i in GameMap.polygons_array:
+					print i
+				for i in GameMap.finish_array:
+					print i
 
 		elif event.type == KEYUP:
 			if event.key == K_SPACE:
-				GameMap.not_log()
-				CanLog = 0
+				pass
 
 	pygame.display.update()
 	fpsClock.tick(30)

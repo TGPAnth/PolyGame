@@ -8,18 +8,17 @@ MOVE = (255,0,0)
 WALL = (0,0,0)
 FINISH = (0,255,0)
 
-# LOG = 0
-
 class Polygon():
 	
-	def __init__(self,lst):
+	def __init__(self,lst,tp = WALL):
 		self.pts = []
+		import pprint
+		print 'in Polygon!'
+		pprint.pprint(lst)
 		if self.is_poly(lst):
 			self.pts = lst[:]
-			# for i in xrange(len(self.pts)):
-			# 	self.pts[i] = [int(self.pts[i][0]),int(self.pts[i][1])]
 		self.move = 0
-		self.color = WALL
+		self.type = tp
 
 	def parallel_axes(self,lst):
 		if lst[0]!=lst[-1]:lst.append(lst[0])
@@ -38,14 +37,12 @@ class Polygon():
 
 	def is_poly(self,a):
 		if not (isinstance(a,list)):
-			if LOG: print 'Not list!'
+			print 'a',a
+			raise Exception('Coordinates must be in list')
 			return False
 		if not(len(a)==4):
-			if LOG: print 'Length is not 4'
+			raise Exception('Only 4 coordinates in list')
 			return False
-		# if not(self.parallel_axes(a[:])):
-		# 	if LOG: print 'Is not parallel'
-		# 	return False
 		return True
 
 	def gradus2rad(self,a):
@@ -77,21 +74,12 @@ class Polygon():
 			uy = round(y + cos(angle)*rq,3)
 			ux = round(x + sin(angle)*rq,3)
 			return [uy,ux]
+
 		x0,y0 = xy[0],xy[1]
 		min_angle = min([angle_start,angle_finish])
 		max_angle = max([angle_start,angle_finish])
 		angles = [x+min_angle for x in xrange(int(delta_angle)+1) if x%every]
 		coords = [get_xy(x0,y0,r,self.gradus2rad(i)) for i in angles]
-		if LOG:
-			print '>>>>>>  intersec_with_arc  >>>>>> '
-			print 'x0 = ',x0,', y0 = ',y0,', r = ',r
-			print angles
-			print coords
-			print 'min_angle = ',min_angle,', max_angle = ',max_angle
-			print '[coord] --- [angle] '
-			for o in xrange(len(angles)):
-				print angles[o], ' - ',coords[o]
-			print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 		for x in xrange(len(coords)-1):
 			if self.cross_with_line(coords[x],coords[x+1]):
 				return True
@@ -133,44 +121,23 @@ class Polygon():
 
 		if angle < 0: angle+=360
 		a1 = self.pts[:]
-		if LOG: print 'A ',a1,' nullpoint = ',nullpoint
 		g,h = to_zero(a1[:], np = nullpoint)
-		if LOG: print 'Start = ',g,' ',h,' NP=',nullpoint
 		for i in xrange(len(g)):
 			g[i] = self.rotate_point(g[i],self.gradus2rad(angle))
-		if LOG: print 'NewG = ',g,' NP=',nullpoint
 		j = from_zero(g[:],h[:])
-		if LOG: print 'ForNP ',j,' NP=',nullpoint
 		if new:
 			pgn = copy.deepcopy(Polygon(j[:]))
 			pgn.move = self.move
-			pgn.color = self.color
-			if LOG: print 'PGN ',pgn,' NP=',nullpoint
+			pgn.type = self.type
 			return copy.deepcopy(pgn)
 		else:
 			self.pts = j[:]
-		
 
 	def rewrite_pts(self,a):
 		if not (self.is_poly(a)):
 			return False
 		self.pts = a[:]
 		return True
-
-	def __nonzero__(self):
-		if len(self.pts)>3:
-			return True
-		return False
-
-	def __str__(self):
-		st = "Polygon: "+ str(self.pts)
-		return st
-
-	def __contains__(self,item):
-		return item in self.pts
-
-	def __getitem__(self,num):
-		return self.pts[num]
 
 	def contain(self,item):
 		if len(item)!=2:
@@ -192,8 +159,6 @@ class Polygon():
 		return -XY2[0]+XY1[0]
 
 	def find_C(self,XY1,XY2):
-		# dx = XY2[0]-XY1[0]
-		# dy = XY2[1]-XY1[1]
 		return -XY1[0]*XY2[1]+XY2[0]*XY1[1]
 
 	def get_parameters(self,XY1,XY2):
@@ -203,10 +168,7 @@ class Polygon():
 		a1 = a[:]
 		if a1[0]!=a1[-1]:a1.append(a1[0])
 		for i in xrange(len(a1)-1):
-			print ' Now point: ',i,'\n Now line: ',a1[i],a1[i+1]
 			if self.cross_with_line(a1[i],a1[i+1],AP):
-				print ' Crossed with line!'
-				if LOG: print ' !!!!!!!!!!!! FAIL !!!!!!!!!!!!'
 				return True
 		return False
 
@@ -228,7 +190,6 @@ class Polygon():
 		f = True
 		for i in xrange(len(a1)-1):
 			nr = False
-			if LOG: print ' Try to check for cross line ',xy,xy1,' with ',a1[i],a1[i+1]
 			if not(xy == AP) or not(xy1 == AP):
 				if AP == None:
 					f = True
@@ -236,33 +197,19 @@ class Polygon():
 					f = not(self.near(a1[i],a1[i+1],xy,xy1,d))
 					nr = True
 			if self.cross_line(a1[i],a1[i+1],xy,xy1,nearp = nr) and f: 
-				if LOG: print ' !!!!!!!!!!!! FAIL !!!!!!!!!!!!'
 				return True
 		return False
 
 	def cross_line(self,A1,A2,B1,B2,d = 1.1,nearp = False):
-		if LOG: print ' In cross_line:'
-		if self.line_on_line_cross(A1,A2,B1,B2):
-			if LOG: print '!!! line_on_line_cross = ',A1,A2,B1,B2
-			return False #???
-		if self.line_on_line(A1,A2,B1,B2):
-			if LOG: print '!!! line_on_line = ',A1,A2,B1,B2
-			return False	
-		if self.parallel_lines(A1,A2,B1,B2):
-			if LOG: print '!!! parallel_lines = ',A1,A2,B1,B2
-			return False
+		if self.line_on_line_cross(A1,A2,B1,B2):return False
+		if self.line_on_line(A1,A2,B1,B2):		return False	
+		if self.parallel_lines(A1,A2,B1,B2):	return False
 		a = self.cross_point(A1,A2,B1,B2)
-		print '>>>>>>>>> nearp: ',nearp 
-		print '>>>>>>>>> self.near(A1,A2,a,a,0.2):', self.near(A1,A2,a,a,0.1)
 		if nearp :
 			if self.near(A1,A2,a,a,0.1):
 				return False
 			else:
 				d = 1.001
-		if LOG: 
-			print '... cross_point = ',a
-			print '... between(A1,A2,a)',self.between(A1,A2,a),A1,A2,a
-			print '... between(B1,B2,a)',self.between(B1,B2,a),B1,B2,a
 		return self.between(A1,A2,a,d) and self.between(B1,B2,a,d)
 
 	def cross_point(self,aXY1,aXY2,bXY1,bXY2):
@@ -275,24 +222,19 @@ class Polygon():
 		B2 = self.find_B(bXY1,bXY2)
 		C1 = self.find_C(aXY1,aXY2)
 		C2 = self.find_C(bXY1,bXY2)
-		# print [A1,B1,C1],[A2,B2,C2]
 		if (A1==A2==0) or (B1==B2==0):
 			return None
 		return [(B1*C2-B2*C1)/float(A1*B2-A2*B1),(C1*A2-C2*A1)/float(A1*B2-A2*B1)]
 	
 	def cross_point_param(self,lt1,lt2):
-		A1 = lt1[0]
-		A2 = lt2[0]
-		B1 = lt1[1]
-		B2 = lt2[1]
-		C1 = lt1[2]
-		C2 = lt2[2]
+		A1,B1,C1 = lt1[0],lt1[1],lt1[2]
+		A2,B2,C2 = lt2[0],lt2[1],lt2[2]
 		if A1*B2-A2*B1 == 0:
 			return None
 		return [(B1*C2-B2*C1)/float(A1*B2-A2*B1),(C1*A2-C2*A1)/float(A1*B2-A2*B1)]
 
 	def between(self,A1,A2,XY,d = 2):
-		return ((((XY[0]-A1[0])**2+(XY[1]-A1[1])**2)**(1.0/2)) + (((A2[0]-XY[0])**2+(A2[1]-XY[1])**2)**(1.0/2))) / float(((A2[0]-A1[0])**2+(A2[1]-A1[1])**2)**(1.0/2)) <= d
+		return (((XY[0]-A1[0])**2+(XY[1]-A1[1])**2)**(1.0/2) + ((A2[0]-XY[0])**2+(A2[1]-XY[1])**2)**(1.0/2)) / float(((A2[0]-A1[0])**2+(A2[1]-A1[1])**2)**(1.0/2)) <= d
 
 	def on_line(self,A1,A2,XY,d = 0.01):
 		return (d >= (XY[1] - A1[1]) * (A2[0] - A1[0]) - (XY[0] - A1[0]) * (A2[1] - A1[1]))
@@ -303,7 +245,8 @@ class Polygon():
 		return False
 	
 	def line_on_line_cross(self,A1,A2,B1,B2):
-		if self.line_on_line(A1,A2,B1,B2) and (self.between(A1,A2,B1) or self.between(A1,A2,B2) or self.between(B1,B2,A1) or self.between(B1,B2,A2)):
+		if self.line_on_line(A1,A2,B1,B2) and (self.between(A1,A2,B1) \
+			or self.between(A1,A2,B2) or self.between(B1,B2,A1) or self.between(B1,B2,A2)):
 			return True
 		return False
 
@@ -324,3 +267,18 @@ class Polygon():
 
 	def __getslice__(self, i, j):
 		return self.pts[i:j]
+
+	def __nonzero__(self):
+		if len(self.pts)>3:
+			return True
+		return False
+
+	def __str__(self):
+		st = "Polygon: "+ str(self.pts)
+		return st
+
+	def __contains__(self,item):
+		return item in self.pts
+
+	def __getitem__(self,num):
+		return self.pts[num]
